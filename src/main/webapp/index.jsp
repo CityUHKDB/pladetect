@@ -8,7 +8,7 @@
 
 <p>Please choose your file to upload</p>
 
-<form action="/upload" method="post" enctype="multipart/form-data">
+<form action="upload" method="post" enctype="multipart/form-data">
     <input type="file" name="file" size="50"/>
     <br/>
     <input type="submit" value="upload file"/>
