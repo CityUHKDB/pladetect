@@ -56,9 +56,9 @@ CREATE TABLE word (
   doc_id INTEGER REFERENCES document(doc_id) NOT NULL,
 	para_id INTEGER REFERENCES paragraph(para_id) NOT NULL,
 	sen_id INTEGER REFERENCES sentence(sen_id) NOT NULL,
-	word VARCHAR(40) NOT NULL;
-	word_position INTEGER NOT NULL;
-	word_POS VARCHAR(2) NOT NULL;
+	word VARCHAR(40) NOT NULL,
+	word_position INTEGER NOT NULL,
+	word_POS VARCHAR(2) NOT NULL
 );
 
 -- create table bigram
