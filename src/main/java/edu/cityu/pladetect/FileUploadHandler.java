@@ -21,11 +21,6 @@ public class FileUploadHandler extends HttpServlet {
         out.println("Hello Servlet");
         boolean isMulPart = ServletFileUpload.isMultipartContent(req);
 
-        if (isMulPart)
-            out.println("is mul part");
-        else
-            out.println("not mul part");
-
         if (!isMulPart) {
             // Not a file upload request
             // Send back error page

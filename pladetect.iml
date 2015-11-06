@@ -27,6 +27,7 @@
     <orderEntry type="library" name="Maven: org.apache.tomcat:tomcat-coyote:7.0.14" level="project" />
     <orderEntry type="library" name="Maven: org.apache.tomcat:tomcat-juli:7.0.14" level="project" />
     <orderEntry type="library" name="Maven: javax.servlet:servlet-api:2.5" level="project" />
+    <orderEntry type="library" name="Maven: postgresql:postgresql:9.1-901-1.jdbc4" level="project" />
     <orderEntry type="library" scope="TEST" name="Maven: junit:junit:3.8.1" level="project" />
   </component>
 </module>
