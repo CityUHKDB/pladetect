@@ -68,5 +68,5 @@ CREATE TABLE bigram (
 	para_id INTEGER REFERENCES paragraph(para_id) NOT NULL,
 	sen_id INTEGER REFERENCES sentence(sen_id) NOT NULL,
 	first_word VARCHAR(40) NOT NULL,
-	second_word VARCHAR(40) NOT NULL,
+	second_word VARCHAR(40) NOT NULL
 );
