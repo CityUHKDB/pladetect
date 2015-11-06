@@ -4,6 +4,7 @@ import org.apache.tomcat.util.http.fileupload.FileItemIterator;
 import org.apache.tomcat.util.http.fileupload.FileItemStream;
 import org.apache.tomcat.util.http.fileupload.disk.DiskFileItemFactory;
 import org.apache.tomcat.util.http.fileupload.servlet.ServletFileUpload;
+import org.apache.tomcat.util.http.fileupload.util.Streams;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -19,9 +20,8 @@ public class FileUploadHandler extends HttpServlet {
 
         PrintWriter out = res.getWriter();
         out.println("Hello Servlet");
-        boolean isMulPart = ServletFileUpload.isMultipartContent(req);
 
-        if (!isMulPart) {
+        if (!ServletFileUpload.isMultipartContent(req)) {
             // Not a file upload request
             // Send back error page
             out.println("No file has been chosen");
@@ -37,16 +37,26 @@ public class FileUploadHandler extends HttpServlet {
             FileItemIterator items = new ServletFileUpload(new DiskFileItemFactory()).getItemIterator(req);
 
             while (items.hasNext()) {
-                FileItemStream f = items.next();
-                pathloc = UPLOAD_DIR + System.currentTimeMillis() + "-" + f.getName();
-                inputStream = f.openStream();
-                outputStream = new FileOutputStream(new File(pathloc));
+                FileItemStream item = items.next();
+                String fieldName = item.getFieldName();
+                inputStream = item.openStream();
 
-                int read = 0;
-                byte[] bytes = new byte[1024];
+                if (!item.isFormField()) {
+                    /* When item is a file
+                     * Read file operation
+                     */
+                    pathloc = UPLOAD_DIR + System.currentTimeMillis() + "-" + item.getName();
+                    outputStream = new FileOutputStream(new File(pathloc));
+                    int read = 0;
+                    byte[] bytes = new byte[1024];
 
-                while ((read = inputStream.read(bytes)) != -1) {
-                    outputStream.write(bytes, 0, read);
+                    while ((read = inputStream.read(bytes)) != -1)
+                        outputStream.write(bytes, 0, read);
+                } else {
+                    /* When item is a form field
+                     * Read the value of that field
+                     */
+                    out.println(fieldName + " - " + Streams.asString(inputStream));
                 }
             }
         } catch (Exception e) {
