@@ -32,6 +32,8 @@
         <option value="email">Email</option>
     </select>
     <br/>
+    Year of Publication:
+    <input type="date" name="yearOfPub"/><br/>
     <input type="file" name="file" size="50"/><br/><br/>
     <input type="submit" value="upload file"/>
 </form>

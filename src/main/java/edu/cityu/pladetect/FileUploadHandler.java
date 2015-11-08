@@ -1,5 +1,6 @@
 package edu.cityu.pladetect;
 
+import edu.cityu.pladetect.javabeans.*;
 import org.apache.tomcat.util.http.fileupload.FileItemIterator;
 import org.apache.tomcat.util.http.fileupload.FileItemStream;
 import org.apache.tomcat.util.http.fileupload.disk.DiskFileItemFactory;
@@ -14,6 +15,7 @@ import java.io.*;
 
 public class FileUploadHandler extends HttpServlet {
     private final String UPLOAD_DIR = "/home/dickson/Documents/FYP/fyp_upload/";
+    private String SQL_INSERT_QUERIES = "";
 
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
@@ -31,6 +33,15 @@ public class FileUploadHandler extends HttpServlet {
         InputStream inputStream = null;
         OutputStream outputStream = null;
         String pathloc = "";
+        // initialize all required Java Beans
+        AuthorBean authorsBean = new AuthorBean();
+        DocumentBean documentBean = new DocumentBean();
+        ParagraphBean paragraphBean = new ParagraphBean();
+        ChapterBean chapterBean = new ChapterBean();
+        SentenceBean sentenceBean = new SentenceBean();
+        PunctuationBean punctuationBean = new PunctuationBean();
+        WordBean wordBean = new WordBean();
+        BigramBean bigramBean = new BigramBean();
 
 
         try {
@@ -56,7 +67,17 @@ public class FileUploadHandler extends HttpServlet {
                     /* When item is a form field
                      * Read the value of that field
                      */
-                    out.println(fieldName + " - " + Streams.asString(inputStream));
+                    if (fieldName.equals("authorName")) {
+                        authorsBean.setAuthor_name(Streams.asString(inputStream));
+                    } else if (fieldName.equals("authorType")) {
+                        authorsBean.setAuthor_type(Streams.asString(inputStream));
+                    } else if (fieldName.equals("docName")) {
+                        documentBean.setDoc_title(Streams.asString(inputStream));
+                    } else if (fieldName.equals("docType")) {
+                        documentBean.setDoc_type(Streams.asString(inputStream));
+                    } else if (fieldName.equals("yearOfPub")) {
+                        documentBean.setYear_of_pub(Streams.asString(inputStream));
+                    } else throw new NoSuchFieldNameException();
                 }
             }
         } catch (Exception e) {
