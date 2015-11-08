@@ -1,5 +1,6 @@
 package edu.cityu.pladetect;
 
+import edu.cityu.pladetect.javabeans.*;
 import opennlp.tools.sentdetect.SentenceDetectorME;
 import opennlp.tools.sentdetect.SentenceModel;
 import opennlp.tools.tokenize.TokenizerME;
@@ -29,6 +30,14 @@ public class DataETL {
     private TokenizerModel tokenizerModel;
     private TokenizerME tokenizerME;
 
+    // Java Beans to be used to insert data into tables
+    private ArrayList<ParagraphBean> paragraphes;
+    private ArrayList<ChapterBean> chapters;
+    private ArrayList<SentenceBean> sentences;
+    private ArrayList<PunctuationBean> punctuations;
+    private ArrayList<WordBean> words;
+    private ArrayList<BigramBean> bigrams;
+
     private DataETL() throws IOException {
         this.path = "";
         this.out = null;
@@ -38,26 +47,27 @@ public class DataETL {
         this.isTokenModel = new FileInputStream("/home/dickson/Dropbox/City U/FYP_Planing/PlaDetect/web/OpenNLPlib/en-token.bin");
         this.tokenizerModel = new TokenizerModel(isTokenModel);
         this.tokenizerME = new TokenizerME(tokenizerModel);
+        // initialize ArrayList
+        paragraphes = new ArrayList<ParagraphBean>();
+        chapters = new ArrayList<ChapterBean>();
+        sentences = new ArrayList<SentenceBean>();
+        punctuations = new ArrayList<PunctuationBean>();
+        words = new ArrayList<WordBean>();
+        bigrams = new ArrayList<BigramBean>();
     }
 
     public static DataETL getInstance() {
         return instance;
     }
 
-    public void setPath(String path) {
+    public void initialize(String path) {
         this.path = path;
-    }
-
-    public void setOut(PrintWriter out) {
-        this.out = out;
-    }
-
-    public void disposePath() {
-        this.path = "";
-    }
-
-    public void disposeWriter() {
-        this.out = null;
+        paragraphes.clear();
+        chapters.clear();
+        sentences.clear();
+        punctuations.clear();
+        words.clear();
+        bigrams.clear();
     }
 
     public void readFile() throws Exception {

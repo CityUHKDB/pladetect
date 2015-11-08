@@ -92,11 +92,7 @@ public class FileUploadHandler extends HttpServlet {
 
             out.println("File has been uploaded successfully");
             try {
-                DataETL.getInstance().setPath(pathloc);
-                DataETL.getInstance().setOut(out);
                 DataETL.getInstance().readFile();
-                DataETL.getInstance().disposePath();
-                DataETL.getInstance().disposeWriter();
             } catch (Exception e) {
                 out.println(e.getMessage());
             }
