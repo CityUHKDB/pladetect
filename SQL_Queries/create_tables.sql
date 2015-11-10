@@ -61,7 +61,7 @@ CREATE TABLE punctuation (
 	para_id INTEGER,
 	sen_id INTEGER,
 	punc_mark VARCHAR(1) NOT NULL,
-	freq INTEGER NOT NULL,
+	punc_position INTEGER NOT NULL,
 	FOREIGN KEY(author_id) REFERENCES author(author_id),
 	FOREIGN KEY(doc_id) REFERENCES document(doc_id),
 	FOREIGN KEY(para_id) REFERENCES paragraph(para_id),
