@@ -17,6 +17,6 @@ public class PunctuationBean implements Serializable {
     public String getPuncSQLString() {
         return "INSERT INTO punctuation(author_id, doc_id, para_id, sen_id, punc_mark, punc_position) " +
                 "VALUES (currval('author_author_id_seq'), currval('document_doc_id_seq'), " +
-                "currval('paragraph_para_id_seq'), currval('sentence_sen_id_seq'), '" + punc_mark + "', " + position + ")";
+                "currval('paragraph_para_id_seq'), currval('sentence_sen_id_seq'), '" + punc_mark.replace("'", "''") + "', " + position + ");";
     }
 }

@@ -1,4 +1,6 @@
 DROP TABLE IF EXISTS bigram;
+DROP TABLE IF EXISTS bigramwithfreq;
+DROP TABLE IF EXISTS bigramfinished;
 DROP TABLE IF EXISTS word;
 DROP TABLE IF EXISTS punctuation;
 DROP TABLE IF EXISTS sentence;

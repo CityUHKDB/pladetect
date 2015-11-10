@@ -18,6 +18,6 @@ public class AuthorBean implements Serializable {
     }
 
     public String getAuthorSQLString() {
-        return "INSERT INTO author(author_name, author_type) VALUES ('" + author_name + "', '" + author_type + "');";
+        return "INSERT INTO author(author_name, author_type) VALUES ('" + author_name.replace("'", "''") + "', '" + author_type.replace("'", "''") + "');";
     }
 }

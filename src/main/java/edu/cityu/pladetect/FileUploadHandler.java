@@ -12,6 +12,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.*;
+import java.sql.SQLException;
 
 public class FileUploadHandler extends HttpServlet {
     private final String UPLOAD_DIR = "/home/dickson/Documents/FYP/fyp_upload/";
@@ -36,12 +37,6 @@ public class FileUploadHandler extends HttpServlet {
         // initialize all required Java Beans
         AuthorBean authorsBean = new AuthorBean();
         DocumentBean documentBean = new DocumentBean();
-        ParagraphBean paragraphBean = new ParagraphBean();
-        ChapterBean chapterBean = new ChapterBean();
-        SentenceBean sentenceBean = new SentenceBean();
-        PunctuationBean punctuationBean = new PunctuationBean();
-        WordBean wordBean = new WordBean();
-        BigramBean bigramBean = new BigramBean();
 
 
         try {
@@ -92,7 +87,19 @@ public class FileUploadHandler extends HttpServlet {
 
             out.println("File has been uploaded successfully");
             try {
-                DataETL.getInstance().readFile();
+                int i = 0;
+                DataETL.getInstance().initialize(pathloc);
+                SQL_INSERT_QUERIES += authorsBean.getAuthorSQLString()
+                        + "\n" + documentBean.getDocSQLString()
+                        + "\n" + DataETL.getInstance().getExtractedStylometricFeatureQueries();
+                DataETL.getInstance().cleanUp();
+
+                StylometricDatabase.getInstance().runInsertQueries(SQL_INSERT_QUERIES);
+                SQL_INSERT_QUERIES = "";
+            } catch (SQLException e) {
+                out.println(e.getSQLState());
+                out.println(e.getErrorCode());
+                out.println(e.getMessage());
             } catch (Exception e) {
                 out.println(e.getMessage());
             }

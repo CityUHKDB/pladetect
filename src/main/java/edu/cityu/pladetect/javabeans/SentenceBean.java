@@ -12,6 +12,6 @@ public class SentenceBean implements Serializable {
     public String getSentenceSQLString() {
         return "INSERT INTO sentence(author_id, doc_id, para_id, no_of_word) " +
                 "VALUES (currval('author_author_id_seq'), currval('document_doc_id_seq'), " +
-                "currval('paragraph_para_id_seq'), " + no_of_word + ")";
+                "currval('paragraph_para_id_seq'), " + no_of_word + ");";
     }
 }

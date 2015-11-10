@@ -22,6 +22,6 @@ public class DocumentBean implements Serializable {
     public String getDocSQLString() {
         // Still need to escape character =]
         return "INSERT INTO document(author_id, doc_title, doc_type, year_of_pub) " +
-                "VALUES(currval('author_author_id_seq'), '" + doc_title + "', '" + doc_title + "', '" + year_of_pub + "');";
+                "VALUES(currval('author_author_id_seq'), '" + doc_title.replace("'", "''") + "', '" + doc_type.replace("'", "''") + "', '" + year_of_pub + "');";
     }
 }

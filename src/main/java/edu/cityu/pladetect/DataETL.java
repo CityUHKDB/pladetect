@@ -7,10 +7,7 @@ import opennlp.tools.tokenize.TokenizerME;
 import opennlp.tools.tokenize.TokenizerModel;
 
 import java.io.*;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Scanner;
+import java.util.*;
 
 public class DataETL {
     private static final DataETL instance;
@@ -24,7 +21,6 @@ public class DataETL {
     }
 
     private String path;
-    private PrintWriter out;
     private InputStream isSenModel;
     private SentenceModel sentenceModel;
     private SentenceDetectorME detectorME;
@@ -33,8 +29,6 @@ public class DataETL {
     private TokenizerME tokenizerME;
 
     // Java Beans to be used to insert data into tables
-    private ArrayList<ParagraphBean> paraBeanList;
-    private ArrayList<ChapterBean> chapBeanList;
     private ArrayList<SentenceBean> senBeanList;
     private ArrayList<PunctuationBean> puncBeanList;
     private ArrayList<WordBean> wordBeanList;
@@ -42,7 +36,6 @@ public class DataETL {
 
     private DataETL() throws IOException {
         this.path = "";
-        this.out = null;
         this.isSenModel = new FileInputStream("/home/dickson/Dropbox/City U/FYP_Planing/PlaDetect/web/OpenNLPlib/en-sent.bin");
         this.sentenceModel = new SentenceModel(isSenModel);
         this.detectorME = new SentenceDetectorME(sentenceModel);
@@ -51,8 +44,6 @@ public class DataETL {
         this.tokenizerME = new TokenizerME(tokenizerModel);
 
         // initialize ArrayList
-        paraBeanList = new ArrayList<ParagraphBean>();
-        chapBeanList = new ArrayList<ChapterBean>();
         senBeanList = new ArrayList<SentenceBean>();
         puncBeanList = new ArrayList<PunctuationBean>();
         wordBeanList = new ArrayList<WordBean>();
@@ -65,20 +56,25 @@ public class DataETL {
 
     public void initialize(String path) {
         this.path = path;
-        paraBeanList.clear();
-        chapBeanList.clear();
+        ArrayListcleanUp();
+    }
+
+    public void cleanUp() {
+        this.path = "";
+        ArrayListcleanUp();
+    }
+
+    private void ArrayListcleanUp() {
         senBeanList.clear();
         puncBeanList.clear();
         wordBeanList.clear();
         bigramBeanList.clear();
     }
 
-    public void readFile() throws Exception {
+    public String getExtractedStylometricFeatureQueries() throws Exception {
         Scanner scn = new Scanner(new File(path));
-        out.println();
-
-        String line, paragraph;
-        paragraph = "";
+        String line, paragraph, SQL_INSERT_QUERIES;
+        paragraph = SQL_INSERT_QUERIES = "";
         int para_total = 0;
         boolean isStart = true;
         Map<Integer, Integer> parainfo;
@@ -88,7 +84,6 @@ public class DataETL {
             if ((line = scn.nextLine()).isEmpty()) {
                 // an empty line implies the program has reached the end of a paragraph
                 para_total++;
-                out.println("\n\nNow reach: " + para_total + " paragraph\n");
                 pb = new ParagraphBean();
 
                 parainfo = splitToSentence(para_total, paragraph);
@@ -96,7 +91,8 @@ public class DataETL {
 
                 pb.setNo_of_sen(entry.getKey());
                 pb.setNo_of_word(entry.getValue());
-                paraBeanList.add(pb);
+
+                SQL_INSERT_QUERIES += pb.getParagraphSQLString() + "\n" + getSQLInsertQueriesForAParagraph();
 
                 paragraph = "";
                 isStart = true;
@@ -107,6 +103,7 @@ public class DataETL {
         }
 
         scn.close();
+        return SQL_INSERT_QUERIES;
     }
 
     private HashMap<Integer, Integer> splitToSentence(int paragraphNo, String paragraph) throws IOException {
@@ -118,7 +115,6 @@ public class DataETL {
 
         for (String s : sentences) {
             numberOfSentence++;
-            out.println(s);
             numberOfWordsPerSen = splitToToken(s);
             numberOfWords += numberOfWordsPerSen;
 
@@ -131,56 +127,87 @@ public class DataETL {
     }
 
     private int splitToToken(String sentence) {
-        String previous = "";
+        String previous, word;
+        previous = "";
         String[] tokens = tokenizerME.tokenize(sentence);
-        ArrayList<String> puncList = new ArrayList<String>();
-        PunctuationBean puB;
-        WordBean wb;
-        BigramBean bb;
+        //HashMap<String, Integer> bigramCount = new HashMap<String, Integer>();
 
         for (int i = 0; i < tokens.length; i++) {
             if (tokens[i].matches("[^a-zA-Z\\d\\w]")) {
-                puB = new PunctuationBean();
-                puB.setPunc_mark(tokens[i]);
-                puB.setPosition(i + 1);
-                puncList.add(tokens[i]);
+                saveToPunctuationBean(tokens[i], i + 1);
             } else {
-                wb = new WordBean();
-                wb.setWord(tokens[i]);
-                wb.setWord_position(i + 1);
-                // functions to be added to detect part of speech
-                wb.setWordPartOfSpeect("TT");
-                wordBeanList.add(wb);
-
+                word = tokens[i].toLowerCase();
+                saveToWordBean(word, i + 1);
                 if (previous.isEmpty()) {
-                    previous = tokens[i];
+                    previous = word;
                     continue;
                 }
 
-                bb = new BigramBean();
-                bb.setFirst_word(previous);
-                bb.setSecond_word(tokens[i]);
-                bigramBeanList.add(bb);
-
-                out.println(previous + " - " + tokens[i]);
-                previous = tokens[i];
+//                bigram = previous + "-" + tokens[i];
+//                if (!bigramCount.containsKey(bigram))
+//                    bigramCount.put(bigram, 1);
+//                else
+//                    bigramCount.put(bigram, (Integer) bigramCount.get(bigram) + 1);
+                saveToBigramBean(previous, word);
+                previous = word;
             }
         }
 
-        out.print("Match special case in previous sentence: ");
-        for (String s : puncList) {
-            out.print(s + " ");
-        }
-        out.println("\n");
+        //saveToBigramBean(bigramCount);
         return tokens.length;
     }
 
-    public String InsertDataToDB()
+    private void saveToPunctuationBean(String punc, int postion) {
+        PunctuationBean puB = new PunctuationBean();
+        puB.setPunc_mark(punc);
+        puB.setPosition(postion);
+        puncBeanList.add(puB);
+    }
+
+    private void saveToWordBean(String word, int position) {
+        WordBean wb = new WordBean();
+        wb.setWord(word);
+        wb.setWord_position(position);
+        // functions to be added to detect part of speech
+        wb.setWordPartOfSpeect("TT");
+        wordBeanList.add(wb);
+    }
+
+    private void saveToBigramBean(String first_word, String second_word) //HashMap<String, Integer> hm)
     {
-        String SQL_INSERT_QUERIES;
-        for (ParagraphBean pb: paraBeanList){
-            pb.getParagraphSQLString();
+        BigramBean bb;
+//        String key;
+//        Iterator it = hm.entrySet().iterator();
+//        while (it.hasNext()){
+//            Map.Entry bigram = (Map.Entry) it.next();
+//            bb = new BigramBean();
+//            key = bigram.getKey().toString();
+//            bb.setFirst_word(key.split("-")[0]);
+//            bb.setSecond_word(key.split("-")[1]);
+//            bb.setFrequency(Integer.parseInt(bigram.getValue().toString()));
+//            bigramBeanList.add(bb);
+//        }
+        bb = new BigramBean();
+        bb.setFirst_word(first_word);
+        bb.setSecond_word(second_word);
+        bigramBeanList.add(bb);
+    }
+
+    private String getSQLInsertQueriesForAParagraph()
+    {
+        String SQL_QUERIES_FOR_PARA = "";
+
+        for (SentenceBean sb : senBeanList) {
+            SQL_QUERIES_FOR_PARA += sb.getSentenceSQLString() + "\n";
+            for (PunctuationBean pb : puncBeanList)
+                SQL_QUERIES_FOR_PARA += pb.getPuncSQLString() + "\n";
+            for (WordBean wb : wordBeanList)
+                SQL_QUERIES_FOR_PARA += wb.getWordSQLString() + "\n";
+            for (BigramBean bb : bigramBeanList)
+                SQL_QUERIES_FOR_PARA += bb.getBigramSQLString() + "\n";
         }
-        return null;
+
+        ArrayListcleanUp();
+        return SQL_QUERIES_FOR_PARA;
     }
 }

@@ -22,6 +22,6 @@ public class WordBean implements Serializable {
     public String getWordSQLString() {
         return "INSERT INTO word(author_id, doc_id, para_id, sen_id, word, word_position, word_POS) " +
                 "VALUES (currval('author_author_id_seq'), currval('document_doc_id_seq'), " +
-                "currval('paragraph_para_id_seq'), currval('sentence_sen_id_seq'), '" + word + "' + " + word_position + ", '" + word_POS + "')";
+                "currval('paragraph_para_id_seq'), currval('sentence_sen_id_seq'), '" + word.replace("'", "''") + "', " + word_position + ", '" + word_POS + "');";
     }
 }
